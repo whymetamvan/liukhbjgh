@@ -1,13 +1,18 @@
 import time
 import requests
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE = "https://lcxnr-like.vercel.app"
 KEY = "LCXNR"
 UID_FILE = "uid.txt"
+LOG_FILE = "log.txt"
 SERVER_NAME = "BD"
-MAX_WORKERS = 10      # request paralel untuk SEND
-DELAY = 0.3           # jeda kecil tiap worker
+MAX_WORKERS = 10
+DELAY = 0.3
+
+WIB = ZoneInfo("Asia/Jakarta")
 
 COMMON_HEADERS = {
     "accept": "*/*",
@@ -27,7 +32,12 @@ COMMON_HEADERS = {
 }
 
 
-# ---------- STEP 1 : RELOAD (cuma 1x) ----------
+def log(msg, fh):
+    print(msg)
+    fh.write(msg + "\n")
+    fh.flush()
+
+
 def refresh_jwt():
     headers = {
         **COMMON_HEADERS,
@@ -35,18 +45,15 @@ def refresh_jwt():
         "origin": BASE,
         "referer": f"{BASE}/master",
     }
-    r = requests.post(
+    return requests.post(
         f"{BASE}/master/api/jwt-refresh",
         params={"key": KEY},
         headers=headers,
         json={"key": KEY},
         timeout=30,
     )
-    r.raise_for_status()
-    return r
 
 
-# ---------- STEP 2 : SEND REQUESTS ----------
 def send_like(uid):
     time.sleep(DELAY)
     return requests.get(
@@ -65,31 +72,41 @@ def baca_uid(path=UID_FILE):
                 yield uid
 
 
+def ringkas(text, limit=200):
+    text = (text or "").replace("\n", " ").strip()
+    return text if len(text) <= limit else text[:limit] + "..."
+
+
 if __name__ == "__main__":
-    # ===== RELOAD JWT (sekali saja) =====
-    try:
-        r1 = refresh_jwt()
-        print(f"[RELOAD] {r1.status_code} -> {r1.text[:150]}")
-    except requests.RequestException as e:
-        print(f"[RELOAD] ERROR: {e}")
+    with open(LOG_FILE, "a", encoding="utf-8") as fh:
+        ts = datetime.now(WIB).strftime("%Y-%m-%d %H:%M:%S WIB")
+        log(f"\n===== RUN {ts} =====", fh)
 
-    # ===== SEND REQUESTS (paralel) =====
-    uids = list(baca_uid())
-    total = len(uids)
-    print(f"[SEND] memproses {total} UID dengan {MAX_WORKERS} worker")
-    sukses = gagal = 0
+        # ----- RELOAD JWT (sekali saja) -----
+        try:
+            r1 = refresh_jwt()
+            log(f"[RELOAD] {r1.status_code} -> {ringkas(r1.text)}", fh)
+        except requests.RequestException as e:
+            log(f"[RELOAD] ERROR: {e}", fh)
 
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        futures = {pool.submit(send_like, uid): uid for uid in uids}
-        for i, fut in enumerate(as_completed(futures), 1):
-            uid = futures[fut]
-            try:
-                r = fut.result()
-                status = "OK" if r.ok else f"HTTP {r.status_code}"
-                print(f"[{i}/{total}] uid={uid} -> {status}")
-                sukses += 1
-            except requests.RequestException as e:
-                print(f"[{i}/{total}] uid={uid} -> ERROR: {e}")
-                gagal += 1
+        # ----- SEND REQUESTS (paralel) -----
+        uids = list(baca_uid())
+        total = len(uids)
+        log(f"[SEND] memproses {total} UID dengan {MAX_WORKERS} worker", fh)
+        sukses = gagal = 0
 
-    print(f"\nSelesai. Total: {total} | Sukses: {sukses} | Gagal: {gagal}")
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+            futures = {pool.submit(send_like, uid): uid for uid in uids}
+            for i, fut in enumerate(as_completed(futures), 1):
+                uid = futures[fut]
+                try:
+                    r = fut.result()
+                    status = "OK" if r.ok else f"HTTP {r.status_code}"
+                    log(f"[{i}/{total}] uid={uid} -> {status} | {ringkas(r.text)}", fh)
+                    sukses += 1
+                except requests.RequestException as e:
+                    log(f"[{i}/{total}] uid={uid} -> ERROR: {e}", fh)
+                    gagal += 1
+
+        log(f"Summary: Total={total} | Sukses={sukses} | Gagal={gagal}", fh)
+        log(f"===== END RUN =====", fh)
