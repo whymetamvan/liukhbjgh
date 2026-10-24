@@ -1,0 +1,28 @@
+name: Reload > Send Requests
+
+on:
+  schedule:
+    # 06:00 WIB (Asia/Jakarta, UTC+7) = 23:00 UTC hari sebelumnya.
+    # GitHub Actions cron SELALU pakai UTC.
+    - cron: '0 23 * * *'
+  workflow_dispatch:   # biar bisa di-trigger manual dari tab Actions
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Reload JWT (1x) + Send Requests
+        run: python main.py
