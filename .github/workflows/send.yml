@@ -2,10 +2,16 @@ name: Reload > Send Requests
 
 on:
   schedule:
-    # 06:00 WIB (Asia/Jakarta, UTC+7) = 23:00 UTC hari sebelumnya.
-    # GitHub Actions cron SELALU pakai UTC.
+    # 06:00 WIB = 23:00 UTC hari sebelumnya (cron GitHub pakai UTC)
     - cron: '0 23 * * *'
-  workflow_dispatch:   # biar bisa di-trigger manual dari tab Actions
+  workflow_dispatch:
+
+permissions:
+  contents: write          # wajib: biar bot bisa push balik log.txt
+
+concurrency:
+  group: reload-send
+  cancel-in-progress: false
 
 jobs:
   run:
@@ -26,3 +32,15 @@ jobs:
 
       - name: Reload JWT (1x) + Send Requests
         run: python main.py
+
+      - name: Commit & push log.txt
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add log.txt
+          if git diff --cached --quiet; then
+            echo "Tidak ada perubahan pada log.txt"
+          else
+            git commit -m "chore: update log.txt [skip ci]"
+            git push
+          fi
