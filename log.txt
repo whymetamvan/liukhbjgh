@@ -8,3 +8,13 @@
 [4/4] uid=279804426 -> OK | {"GiftCount":0,"LikesGivenByAPI":0,"LikesafterCommand":1060,"LikesbeforeCommand":1060,"Owner":"TG: @NM.CDX","PlayerNickname":"\u08bd\u08bd\u08bd","UID":279804426,"accounts_loaded":986,"avatarUrl":"htt...
 Summary: Total=4 | Sukses=4 | Gagal=0
 ===== END RUN =====
+
+===== RUN 2026-10-25 07:42:22 WIB =====
+[RELOAD] ERROR: HTTPSConnectionPool(host='lcxnr-like.vercel.app', port=443): Read timed out. (read timeout=30)
+[SEND] memproses 4 UID dengan 10 worker
+[1/4] uid=246868503 -> OK | {"GiftCount":440,"LikesGivenByAPI":220,"LikesafterCommand":8516,"LikesbeforeCommand":8296,"Owner":"TG: @NM.CDX","PlayerNickname":"\u08bd\u08bd\u08bd\u08bd\u08bd\u08bd\u08bd","UID":246868503,"accounts_...
+[2/4] uid=186630850 -> ERROR: HTTPSConnectionPool(host='lcxnr-like.vercel.app', port=443): Read timed out. (read timeout=30)
+[3/4] uid=279804426 -> ERROR: HTTPSConnectionPool(host='lcxnr-like.vercel.app', port=443): Read timed out. (read timeout=30)
+[4/4] uid=44152621 -> ERROR: HTTPSConnectionPool(host='lcxnr-like.vercel.app', port=443): Read timed out. (read timeout=30)
+Summary: Total=4 | Sukses=1 | Gagal=3
+===== END RUN =====
