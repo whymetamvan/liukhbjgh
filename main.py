@@ -4,7 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-BASE = "https://lcxnr-like.vercel.app"
+BASE = "https://lcxnr-like.up.railway.app"
 KEY = "LCXNR"
 UID_FILE = "uid.txt"
 LOG_FILE = "log.txt"
