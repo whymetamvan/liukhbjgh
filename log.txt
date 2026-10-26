@@ -18,3 +18,13 @@ Summary: Total=4 | Sukses=4 | Gagal=0
 [4/4] uid=44152621 -> ERROR: HTTPSConnectionPool(host='lcxnr-like.vercel.app', port=443): Read timed out. (read timeout=30)
 Summary: Total=4 | Sukses=1 | Gagal=3
 ===== END RUN =====
+
+===== RUN 2026-10-26 07:52:46 WIB =====
+[RELOAD] ERROR: HTTPSConnectionPool(host='lcxnr-like.vercel.app', port=443): Read timed out. (read timeout=30)
+[SEND] memproses 4 UID dengan 10 worker
+[1/4] uid=246868503 -> OK | {"GiftCount":190,"LikesGivenByAPI":95,"LikesafterCommand":8613,"LikesbeforeCommand":8518,"Owner":"TG: @NM.CDX","PlayerNickname":"\u08bd\u08bd\u08bd\u08bd\u08bd\u08bd\u08bd","UID":246868503,"accounts_l...
+[2/4] uid=44152621 -> OK | {"GiftCount":30,"LikesGivenByAPI":15,"LikesafterCommand":1223,"LikesbeforeCommand":1208,"Owner":"TG: @NM.CDX","PlayerNickname":"7th`Vladezz","UID":44152621,"accounts_loaded":986,"avatarUrl":"https://c...
+[3/4] uid=279804426 -> OK | {"GiftCount":440,"LikesGivenByAPI":220,"LikesafterCommand":1501,"LikesbeforeCommand":1281,"Owner":"TG: @NM.CDX","PlayerNickname":"\u08bd\u08bd\u08bd","UID":279804426,"accounts_loaded":986,"avatarUrl":...
+[4/4] uid=186630850 -> ERROR: HTTPSConnectionPool(host='lcxnr-like.vercel.app', port=443): Read timed out. (read timeout=30)
+Summary: Total=4 | Sukses=3 | Gagal=1
+===== END RUN =====
