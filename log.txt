@@ -28,3 +28,13 @@ Summary: Total=4 | Sukses=1 | Gagal=3
 [4/4] uid=186630850 -> ERROR: HTTPSConnectionPool(host='lcxnr-like.vercel.app', port=443): Read timed out. (read timeout=30)
 Summary: Total=4 | Sukses=3 | Gagal=1
 ===== END RUN =====
+
+===== RUN 2026-10-27 08:44:32 WIB =====
+[RELOAD] 200 -> {"ok":true,"refreshed":{"BD":762,"IND":0,"BR":0,"US":0,"SAC":0,"NA":0}}
+[SEND] memproses 4 UID dengan 10 worker
+[1/4] uid=186630850 -> OK | {"GiftCount":420,"LikesGivenByAPI":210,"LikesafterCommand":13358,"LikesbeforeCommand":13148,"Owner":"TG: @NM.CDX","PlayerNickname":"PANCIWARTEG\u213b","UID":186630850,"accounts_loaded":986,"avatarUrl"...
+[2/4] uid=246868503 -> OK | {"GiftCount":322,"LikesGivenByAPI":161,"LikesafterCommand":8863,"LikesbeforeCommand":8702,"Owner":"TG: @NM.CDX","PlayerNickname":"\u08bd\u08bd\u08bd\u08bd\u08bd\u08bd\u08bd","UID":246868503,"accounts_...
+[3/4] uid=44152621 -> OK | {"GiftCount":14,"LikesGivenByAPI":7,"LikesafterCommand":1429,"LikesbeforeCommand":1422,"Owner":"TG: @NM.CDX","PlayerNickname":"7th`Vladezz","UID":44152621,"accounts_loaded":986,"avatarUrl":"https://cd...
+[4/4] uid=279804426 -> OK | {"GiftCount":12,"LikesGivenByAPI":6,"LikesafterCommand":1507,"LikesbeforeCommand":1501,"Owner":"TG: @NM.CDX","PlayerNickname":"\u08bd\u08bd\u08bd","UID":279804426,"accounts_loaded":986,"avatarUrl":"ht...
+Summary: Total=4 | Sukses=4 | Gagal=0
+===== END RUN =====
