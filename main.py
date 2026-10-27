@@ -2,15 +2,16 @@ import time
 import requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE = "https://lcxnr-like.up.railway.app"
 KEY = "LCXNR"
 UID_FILE = "uid.txt"
 LOG_FILE = "log.txt"
 SERVER_NAME = "BD"
-MAX_WORKERS = 10
-DELAY = 0.3
+REQUEST_TIMEOUT = 30
+
+JWT_REFRESH_DELAY = 5 * 60
+LIKE_DELAY = 2 * 60
 
 WIB = ZoneInfo("Asia/Jakarta")
 
@@ -38,6 +39,13 @@ def log(msg, fh):
     fh.flush()
 
 
+def wait_delay(seconds, label, fh):
+    if seconds <= 0:
+        return
+    log(f"[WAIT] {label} menunggu {seconds} detik...", fh)
+    time.sleep(seconds)
+
+
 def refresh_jwt():
     headers = {
         **COMMON_HEADERS,
@@ -50,17 +58,16 @@ def refresh_jwt():
         params={"key": KEY},
         headers=headers,
         json={"key": KEY},
-        timeout=30,
+        timeout=REQUEST_TIMEOUT,
     )
 
 
 def send_like(uid):
-    time.sleep(DELAY)
     return requests.get(
         f"{BASE}/nmcdx&like",
         params={"uid": uid, "server_name": SERVER_NAME, "key": KEY},
         headers={**COMMON_HEADERS, "referer": f"{BASE}/"},
-        timeout=30,
+        timeout=REQUEST_TIMEOUT,
     )
 
 
@@ -82,31 +89,35 @@ if __name__ == "__main__":
         ts = datetime.now(WIB).strftime("%Y-%m-%d %H:%M:%S WIB")
         log(f"\n===== RUN {ts} =====", fh)
 
-        # ----- RELOAD JWT (sekali saja) -----
+        # ----- RELOAD JWT with delay -----
         try:
+            wait_delay(JWT_REFRESH_DELAY, "REFRESH JWT", fh)
             r1 = refresh_jwt()
             log(f"[RELOAD] {r1.status_code} -> {ringkas(r1.text)}", fh)
         except requests.RequestException as e:
             log(f"[RELOAD] ERROR: {e}", fh)
 
-        # ----- SEND REQUESTS (paralel) -----
+        # ----- SEND REQUESTS sequentially with delay per UID -----
         uids = list(baca_uid())
         total = len(uids)
-        log(f"[SEND] memproses {total} UID dengan {MAX_WORKERS} worker", fh)
+        log(f"[SEND] memproses {total} UID secara berurutan dengan delay {LIKE_DELAY} detik per UID", fh)
         sukses = gagal = 0
 
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-            futures = {pool.submit(send_like, uid): uid for uid in uids}
-            for i, fut in enumerate(as_completed(futures), 1):
-                uid = futures[fut]
-                try:
-                    r = fut.result()
-                    status = "OK" if r.ok else f"HTTP {r.status_code}"
-                    log(f"[{i}/{total}] uid={uid} -> {status} | {ringkas(r.text)}", fh)
-                    sukses += 1
-                except requests.RequestException as e:
-                    log(f"[{i}/{total}] uid={uid} -> ERROR: {e}", fh)
-                    gagal += 1
+        for i, uid in enumerate(uids, 1):
+            if i > 1:
+                wait_delay(LIKE_DELAY, f"UID {uid}", fh)
+            else:
+                # delay before first UID too, to keep spacing consistent
+                wait_delay(LIKE_DELAY, f"UID {uid}", fh)
+
+            try:
+                r = send_like(uid)
+                status = "OK" if r.ok else f"HTTP {r.status_code}"
+                log(f"[{i}/{total}] uid={uid} -> {status} | {ringkas(r.text)}", fh)
+                sukses += 1
+            except requests.RequestException as e:
+                log(f"[{i}/{total}] uid={uid} -> ERROR: {e}", fh)
+                gagal += 1
 
         log(f"Summary: Total={total} | Sukses={sukses} | Gagal={gagal}", fh)
         log(f"===== END RUN =====", fh)
