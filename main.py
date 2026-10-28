@@ -10,8 +10,8 @@ LOG_FILE = "log.txt"
 SERVER_NAME = "BD"
 REQUEST_TIMEOUT = 30
 
-JWT_REFRESH_DELAY = 5 * 60
-LIKE_DELAY = 2 * 60
+JWT_REFRESH_DELAY = 7 * 60
+LIKE_DELAY = 5 * 60
 
 WIB = ZoneInfo("Asia/Jakarta")
 
